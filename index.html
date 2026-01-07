@@ -13,7 +13,6 @@
             padding: 20px;
             margin: 0;
             color: #333;
-            /* Prevent selecting text when tapping quickly to check off items */
             user-select: none; 
             -webkit-user-select: none; 
         }
@@ -27,13 +26,12 @@
             border-top: 6px solid #008C45; /* Basil Green */
             border-bottom: 6px solid #CD212A; /* Tomato Red */
             overflow: hidden;
-            position: relative;
         }
 
         /* HEADER */
         .header {
             text-align: center;
-            padding: 20px 20px 10px 20px;
+            padding: 15px 20px 10px 20px; /* Adjusted padding */
         }
         h2 { 
             color: #CD212A; 
@@ -49,13 +47,13 @@
             margin-top: 8px;
         }
 
-        /* WAKE LOCK TOGGLE (Screen On) */
+        /* WAKE LOCK TOGGLE (Fixed Position) */
         .wake-lock-container {
-            position: absolute;
-            top: 15px;
-            right: 15px;
+            /* Changed from absolute to centered flex */
             display: flex;
             align-items: center;
+            justify-content: center;
+            margin-bottom: 15px; /* Space between toggle and title */
             font-size: 12px;
             font-family: sans-serif;
             color: #666;
@@ -152,19 +150,18 @@
         .result-row {
             display: flex;
             justify-content: space-between;
-            padding: 12px 10px; /* Added side padding for tap area */
+            padding: 12px 10px;
             font-size: 18px;
             border-bottom: 1px solid #eee;
             font-family: sans-serif;
             color: #333;
-            cursor: pointer; /* Indicates clickable */
+            cursor: pointer;
             border-radius: 4px;
             transition: background 0.2s;
         }
         .result-row:last-child { border-bottom: none; }
         .result-row:hover { background-color: #f9f9f9; }
         
-        /* The Checked State */
         .checked {
             text-decoration: line-through;
             color: #aaa;
@@ -200,7 +197,6 @@
             font-weight: bold;
             color: #CD212A;
         }
-        /* Checked state for list items */
         li.checked {
             background-color: #f4f4f4;
             color: #aaa;
@@ -417,18 +413,18 @@
         if (toggle.checked) {
             try {
                 wakeLock = await navigator.wakeLock.request('screen');
-                console.log('Screen Wake Lock active');
-                // If lock is lost (e.g. user minimized), uncheck the box
+                // Lock acquired
                 wakeLock.addEventListener('release', () => {
-                    console.log('Screen Wake Lock released');
+                    // Lock released by system (e.g. switching apps)
                     toggle.checked = false; 
                 });
             } catch (err) {
-                console.error(`${err.name}, ${err.message}`);
+                // Wake lock not supported or allowed
                 toggle.checked = false;
-                alert("Screen Lock not supported on this browser.");
+                alert("Screen Lock not supported by your browser/device.");
             }
         } else {
+            // User manually turned it off
             if (wakeLock !== null) {
                 await wakeLock.release();
                 wakeLock = null;
@@ -457,7 +453,7 @@
         if(sweetenerType !== 'none') {
             text += `- ${sweetenerType === 'sugar' ? 'Sugar' : 'Honey'}: ${sweetenerVal}\n`;
         }
-        
+        // Adds a link back to your calculator in the copied text
         text += `\nMethod: https://${window.location.hostname}${window.location.pathname}`;
 
         navigator.clipboard.writeText(text).then(function() {
@@ -465,7 +461,7 @@
             x.className = "toast show";
             setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
         }, function(err) {
-            alert('Could not copy text: ', err);
+            alert('Could not copy text. Do it manually!');
         });
     }
 
