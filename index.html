@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Classic Pizza Dough</title>
+    <style>
+        /* ITALIAN THEME CSS */
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background-color: #f9f6f0;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            margin: 0;
+            color: #333;
+        }
+        .container {
+            background: white;
+            padding: 0;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 450px;
+            width: 100%;
+            border-top: 6px solid #008C45; /* Basil Green */
+            border-bottom: 6px solid #CD212A; /* Tomato Red */
+            overflow: hidden;
+        }
+
+        /* HEADER */
+        .header {
+            text-align: center;
+            padding: 20px 20px 10px 20px;
+        }
+        h2 { 
+            color: #CD212A; 
+            font-size: 26px;
+            margin: 0; 
+            letter-spacing: 1px;
+        }
+        .subtitle {
+            color: #008C45;
+            font-style: italic;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        /* TABS NAVIGATION */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #eee;
+            background-color: #fafafa;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-family: 'Georgia', serif;
+            font-size: 16px;
+            color: #777;
+            transition: 0.3s;
+        }
+        .tab-btn:hover { background-color: #f0f0f0; }
+        .tab-btn.active {
+            color: #008C45;
+            font-weight: bold;
+            border-bottom: 3px solid #008C45;
+            background-color: white;
+        }
+
+        /* TAB CONTENT */
+        .tab-content {
+            display: none;
+            padding: 25px;
+            animation: fadeIn 0.3s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* INPUTS */
+        .input-group { margin-bottom: 20px; }
+        label { 
+            display: block; 
+            margin-bottom: 8px; 
+            font-weight: normal; 
+            color: #444; 
+            font-family: sans-serif;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            background: #fff;
+            border: 2px solid #e0e0e0;
+            color: #333;
+            border-radius: 4px;
+            font-size: 18px;
+            box-sizing: border-box;
+            outline: none;
+        }
+        input:focus, select:focus { border-color: #008C45; }
+
+        /* RESULTS */
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            font-size: 18px;
+            border-bottom: 1px solid #eee;
+            font-family: sans-serif;
+            color: #333;
+        }
+        .result-row:last-child { border-bottom: none; }
+        
+        /* Note for Flour */
+        .note {
+            font-size: 13px;
+            color: #666;
+            font-style: italic;
+            margin-top: 5px;
+            font-family: sans-serif;
+        }
+
+        /* METHOD LIST */
+        ul { padding-left: 20px; margin: 0; font-family: sans-serif; color: #555; }
+        li { margin-bottom: 12px; line-height: 1.6; }
+        
+        /* Highlight specific ingredients in text */
+        .ingredient-text { font-weight: bold; color: #333; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h2>🍕 Classic Pizza Dough</h2>
+        <div class="subtitle">Traditional Slow Ferment</div>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="openTab('calculatorTab', this)">Ingredients</button>
+        <button class="tab-btn" onclick="openTab('methodTab', this)">Method</button>
+    </div>
+
+    <div id="calculatorTab" class="tab-content" style="display: block;">
+        <div class="input-group">
+            <label>Number of Pizzas</label>
+            <input type="number" id="balls" value="6" oninput="calculateRecipe()">
+        </div>
+
+        <div class="input-group">
+            <label>Weight per Pizza (grams)</label>
+            <input type="number" id="ballWeight" value="283" oninput="calculateRecipe()">
+        </div>
+
+        <div class="input-group">
+            <label>Sweetener</label>
+            <select id="sweetenerType" onchange="calculateRecipe()">
+                <option value="sugar" selected>Sugar (1%)</option>
+                <option value="honey">Honey (1.5%)</option>
+                <option value="none">None (Traditional)</option>
+            </select>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <div class="result-row">
+                <span>Flour (100%):</span> 
+                <strong id="flourResult">-</strong>
+            </div>
+            <div class="note">Preferably High Protein (>11g)</div>
+
+            <div class="result-row"><span>Water (65%):</span> <strong id="waterResult">-</strong></div>
+            <div class="result-row"><span>Salt (2.5%):</span> <strong id="saltResult">-</strong></div>
+            <div class="result-row"><span>Dry Yeast (0.15%):</span> <strong id="yeastResult">-</strong></div>
+            <div class="result-row"><span>Olive Oil (1%):</span> <strong id="oilResult">-</strong></div>
+            <div class="result-row" id="sweetenerRow"><span>Sugar (1%):</span> <strong id="sweetenerResult">-</strong></div>
+        </div>
+    </div>
+
+    <div id="methodTab" class="tab-content">
+        <ul>
+            <li>Mix <span class="ingredient-text">Water</span> (cold), <span class="ingredient-text">Yeast</span>, <span class="ingredient-text">Sugar/Honey</span>, and <span class="ingredient-text">Olive Oil</span> together. Let rest 5 mins.</li>
+            <li>Add <span class="ingredient-text">Flour</span> (High protein is best). Knead slowly until united.</li>
+            <li>Add <span class="ingredient-text">Salt</span> slowly while kneading.</li>
+            <li>Knead until smooth and separates from sides (do not overheat).</li>
+            <li>Perform 4 folds every 15 mins.</li>
+            <li>Bulk Proof: 1 hour rest as one big ball.</li>
+            <li>Cold Ferment: Divide into balls and place in fridge for 24 to 72 hours.</li>
+        </ul>
+    </div>
+
+</div>
+
+<script>
+    function openTab(tabName, btnElement) {
+        var contents = document.getElementsByClassName("tab-content");
+        for (var i = 0; i < contents.length; i++) {
+            contents[i].style.display = "none";
+        }
+        var buttons = document.getElementsByClassName("tab-btn");
+        for (var i = 0; i < buttons.length; i++) {
+            buttons[i].classList.remove("active");
+        }
+        document.getElementById(tabName).style.display = "block";
+        if(btnElement) btnElement.classList.add("active");
+    }
+
+    function calculateRecipe() {
+        let balls = parseFloat(document.getElementById('balls').value);
+        let weightPerBall = parseFloat(document.getElementById('ballWeight').value);
+        let sweetenerType = document.getElementById('sweetenerType').value;
+
+        let hydrationPct = 65.0; 
+        let saltPct = 2.5; 
+        let yeastPct = 0.15;
+        let oilPct = 1.0;
+        
+        let sweetenerPct = 0;
+        if (sweetenerType === 'sugar') sweetenerPct = 1.0;
+        if (sweetenerType === 'honey') sweetenerPct = 1.5;
+
+        let totalPercentage = 100 + hydrationPct + saltPct + yeastPct + oilPct + sweetenerPct;
+        let totalDoughWeight = balls * weightPerBall;
+
+        let flour = (totalDoughWeight / totalPercentage) * 100;
+        let water = flour * (hydrationPct / 100);
+        let salt = flour * (saltPct / 100);
+        let yeast = flour * (yeastPct / 100);
+        let oil = flour * (oilPct / 100);
+        let sweetener = flour * (sweetenerPct / 100);
+
+        // Update Screen
+        document.getElementById('flourResult').innerText = Math.round(flour) + " g";
+        document.getElementById('waterResult').innerText = Math.round(water) + " g";
+        document.getElementById('saltResult').innerText = salt.toFixed(1) + " g";
+        document.getElementById('yeastResult').innerText = yeast.toFixed(1) + " g";
+        document.getElementById('oilResult').innerText = Math.round(oil) + " g";
+
+        let sweetenerRow = document.getElementById('sweetenerRow');
+        let sweetenerResult = document.getElementById('sweetenerResult');
+        let sweetenerLabel = sweetenerRow.querySelector('span');
+
+        if (sweetenerType === 'none') {
+            sweetenerRow.style.display = 'none';
+        } else {
+            sweetenerRow.style.display = 'flex';
+            sweetenerLabel.innerText = (sweetenerType === 'sugar' ? "Sugar (1%):" : "Honey (1.5%):");
+            sweetenerResult.innerText = sweetener.toFixed(1) + " g";
+        }
+    }
+
+    // Run on load
+    calculateRecipe();
+</script>
+
+</body>
+</html>
