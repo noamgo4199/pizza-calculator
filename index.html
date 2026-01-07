@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Classic Pizza Dough</title>
+    <title>Pizza Dough Calculator</title>
     <style>
         /* ITALIAN THEME CSS */
         body {
@@ -35,13 +35,14 @@
             color: #CD212A; 
             font-size: 26px;
             margin: 0; 
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
+            font-weight: bold;
         }
         .subtitle {
             color: #008C45;
             font-style: italic;
-            font-size: 14px;
-            margin-top: 5px;
+            font-size: 15px;
+            margin-top: 8px;
         }
 
         /* TABS NAVIGATION */
@@ -117,7 +118,6 @@
         }
         .result-row:last-child { border-bottom: none; }
         
-        /* Note for Flour */
         .note {
             font-size: 13px;
             color: #666;
@@ -126,20 +126,25 @@
             font-family: sans-serif;
         }
 
-        /* METHOD LIST */
-        ul { padding-left: 20px; margin: 0; font-family: sans-serif; color: #555; }
-        li { margin-bottom: 12px; line-height: 1.6; }
-        
-        /* Highlight specific ingredients in text */
-        .ingredient-text { font-weight: bold; color: #333; }
+        /* METHOD LIST STYLING */
+        ul { padding-left: 20px; margin: 0; font-family: sans-serif; color: #444; }
+        li { 
+            margin-bottom: 15px; /* More space between steps */
+            line-height: 1.5; 
+        }
+        /* Action words in bold for readability */
+        .step-action {
+            font-weight: bold;
+            color: #CD212A; /* Tomato Red for actions */
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <h2>🍕 Classic Pizza Dough</h2>
-        <div class="subtitle">Traditional Slow Ferment</div>
+        <h2>Pizza Dough Calculator</h2>
+        <div class="subtitle">24-72hr Slow Ferment</div>
     </div>
 
     <div class="tabs">
@@ -184,13 +189,13 @@
 
     <div id="methodTab" class="tab-content">
         <ul>
-            <li>Mix <span class="ingredient-text">Water</span> (cold), <span class="ingredient-text">Yeast</span>, <span class="ingredient-text">Sugar/Honey</span>, and <span class="ingredient-text">Olive Oil</span> together. Let rest 5 mins.</li>
-            <li>Add <span class="ingredient-text">Flour</span> (High protein is best). Knead slowly until united.</li>
-            <li>Add <span class="ingredient-text">Salt</span> slowly while kneading.</li>
-            <li>Knead until smooth and separates from sides (do not overheat).</li>
-            <li>Perform 4 folds every 15 mins.</li>
-            <li>Bulk Proof: 1 hour rest as one big ball.</li>
-            <li>Cold Ferment: Divide into balls and place in fridge for 24 to 72 hours.</li>
+            <li><span class="step-action">Mix</span> Water (cold), Yeast, and Sweetener together. Let rest for 5 minutes.</li>
+            <li><span class="step-action">Add</span> Flour and Olive Oil. Knead slowly until united.</li>
+            <li><span class="step-action">Add</span> Salt slowly while kneading.</li>
+            <li><span class="step-action">Knead</span> until smooth and dough separates from the bowl sides (be careful not to overheat).</li>
+            <li><span class="step-action">Fold</span> the dough 4 times every 15 minutes to build strength.</li>
+            <li><span class="step-action">Bulk Proof</span> for 1 hour as one big ball (room temp).</li>
+            <li><span class="step-action">Cold Ferment</span> Divide into balls and place in the fridge for 24 to 72 hours.</li>
         </ul>
     </div>
 
