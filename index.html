@@ -13,6 +13,9 @@
             padding: 20px;
             margin: 0;
             color: #333;
+            /* Prevent selecting text when tapping quickly to check off items */
+            user-select: none; 
+            -webkit-user-select: none; 
         }
         .container {
             background: white;
@@ -24,6 +27,7 @@
             border-top: 6px solid #008C45; /* Basil Green */
             border-bottom: 6px solid #CD212A; /* Tomato Red */
             overflow: hidden;
+            position: relative;
         }
 
         /* HEADER */
@@ -44,6 +48,47 @@
             font-size: 15px;
             margin-top: 8px;
         }
+
+        /* WAKE LOCK TOGGLE (Screen On) */
+        .wake-lock-container {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+            font-family: sans-serif;
+            color: #666;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 34px;
+            height: 20px;
+            margin-left: 8px;
+        }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider { background-color: #008C45; }
+        input:checked + .slider:before { transform: translateX(14px); }
 
         /* TABS NAVIGATION */
         .tabs {
@@ -76,10 +121,7 @@
             padding: 25px;
             animation: fadeIn 0.3s;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         /* INPUTS */
         .input-group { margin-bottom: 20px; }
@@ -106,43 +148,118 @@
         }
         input:focus, select:focus { border-color: #008C45; }
 
-        /* RESULTS */
+        /* RESULTS & CHECKBOX INTERACTION */
         .result-row {
             display: flex;
             justify-content: space-between;
-            padding: 12px 0;
+            padding: 12px 10px; /* Added side padding for tap area */
             font-size: 18px;
             border-bottom: 1px solid #eee;
             font-family: sans-serif;
             color: #333;
+            cursor: pointer; /* Indicates clickable */
+            border-radius: 4px;
+            transition: background 0.2s;
         }
         .result-row:last-child { border-bottom: none; }
+        .result-row:hover { background-color: #f9f9f9; }
+        
+        /* The Checked State */
+        .checked {
+            text-decoration: line-through;
+            color: #aaa;
+            background-color: #f0f0f0;
+        }
         
         .note {
             font-size: 13px;
             color: #666;
             font-style: italic;
             margin-top: 5px;
+            margin-bottom: 5px;
             font-family: sans-serif;
         }
 
         /* METHOD LIST STYLING */
-        ul { padding-left: 20px; margin: 0; font-family: sans-serif; color: #444; }
+        ul { padding-left: 0; margin: 0; list-style: none; }
         li { 
-            margin-bottom: 15px; /* More space between steps */
+            margin-bottom: 10px;
+            padding: 12px;
             line-height: 1.5; 
+            font-family: sans-serif;
+            color: #444;
+            background: #fff;
+            border: 1px solid #eee;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
         }
-        /* Action words in bold for readability */
+        li:hover { border-color: #ccc; }
+        
         .step-action {
             font-weight: bold;
-            color: #CD212A; /* Tomato Red for actions */
+            color: #CD212A;
         }
+        /* Checked state for list items */
+        li.checked {
+            background-color: #f4f4f4;
+            color: #aaa;
+            text-decoration: line-through;
+            border-color: transparent;
+        }
+        li.checked .step-action { color: #aaa; }
+
+        /* COPY BUTTON */
+        .action-btn {
+            width: 100%;
+            margin-top: 20px;
+            padding: 12px;
+            background-color: #444;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-family: sans-serif;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .action-btn:active { transform: scale(0.98); }
+        .toast {
+            visibility: hidden;
+            min-width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 4px;
+            padding: 10px;
+            position: fixed;
+            z-index: 1;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            font-family: sans-serif;
+            font-size: 14px;
+        }
+        .toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
+        <div class="wake-lock-container">
+            <span>Keep Screen On</span>
+            <label class="toggle-switch">
+                <input type="checkbox" id="wakeLockToggle" onchange="toggleWakeLock()">
+                <span class="slider"></span>
+            </label>
+        </div>
+
         <h2>Pizza Dough Calculator</h2>
         <div class="subtitle">24-72hr Slow Ferment</div>
     </div>
@@ -155,17 +272,17 @@
     <div id="calculatorTab" class="tab-content" style="display: block;">
         <div class="input-group">
             <label>Number of Pizzas</label>
-            <input type="number" id="balls" value="6" oninput="calculateRecipe()">
+            <input type="number" id="balls" value="6" oninput="calculateAndSave()">
         </div>
 
         <div class="input-group">
             <label>Weight per Pizza (grams)</label>
-            <input type="number" id="ballWeight" value="283" oninput="calculateRecipe()">
+            <input type="number" id="ballWeight" value="283" oninput="calculateAndSave()">
         </div>
 
         <div class="input-group">
             <label>Sweetener</label>
-            <select id="sweetenerType" onchange="calculateRecipe()">
+            <select id="sweetenerType" onchange="calculateAndSave()">
                 <option value="sugar" selected>Sugar (1%)</option>
                 <option value="honey">Honey (1.5%)</option>
                 <option value="none">None (Traditional)</option>
@@ -173,46 +290,57 @@
         </div>
 
         <div style="margin-top: 20px;">
-            <div class="result-row">
-                <span>Flour (100%):</span> 
-                <strong id="flourResult">-</strong>
+            <div class="note">Tap items to cross them off</div>
+            
+            <div class="result-row" onclick="toggleCheck(this)">
+                <span>Flour (100%):</span> <strong id="flourResult">-</strong>
             </div>
-            <div class="note">Preferably High Protein (>11g)</div>
+            <div class="note" style="margin-bottom: 10px;">Preferably High Protein (>11g)</div>
 
-            <div class="result-row"><span>Water (65%):</span> <strong id="waterResult">-</strong></div>
-            <div class="result-row"><span>Salt (2.5%):</span> <strong id="saltResult">-</strong></div>
-            <div class="result-row"><span>Dry Yeast (0.15%):</span> <strong id="yeastResult">-</strong></div>
-            <div class="result-row"><span>Olive Oil (1%):</span> <strong id="oilResult">-</strong></div>
-            <div class="result-row" id="sweetenerRow"><span>Sugar (1%):</span> <strong id="sweetenerResult">-</strong></div>
+            <div class="result-row" onclick="toggleCheck(this)"><span>Water (65%):</span> <strong id="waterResult">-</strong></div>
+            <div class="result-row" onclick="toggleCheck(this)"><span>Salt (2.5%):</span> <strong id="saltResult">-</strong></div>
+            <div class="result-row" onclick="toggleCheck(this)"><span>Dry Yeast (0.15%):</span> <strong id="yeastResult">-</strong></div>
+            <div class="result-row" onclick="toggleCheck(this)"><span>Olive Oil (1%):</span> <strong id="oilResult">-</strong></div>
+            <div class="result-row" id="sweetenerRow" onclick="toggleCheck(this)"><span>Sugar (1%):</span> <strong id="sweetenerResult">-</strong></div>
+        
+            <button class="action-btn" onclick="copyRecipe()">
+                📋 Copy Recipe to Clipboard
+            </button>
         </div>
     </div>
 
     <div id="methodTab" class="tab-content">
+        <div class="note">Tap steps to mark done</div>
         <ul>
-            <li><span class="step-action">Mix</span> Water (cold), Yeast, and Sweetener together. Let rest for 5 minutes.</li>
-            <li><span class="step-action">Add</span> Flour and Olive Oil. Knead slowly until united.</li>
-            <li><span class="step-action">Add</span> Salt slowly while kneading.</li>
-            <li><span class="step-action">Knead</span> until smooth and dough separates from the bowl sides (be careful not to overheat).</li>
-            <li><span class="step-action">Fold</span> the dough 4 times every 15 minutes to build strength.</li>
-            <li><span class="step-action">Bulk Proof</span> for 1 hour as one big ball (room temp).</li>
-            <li><span class="step-action">Cold Ferment</span> Divide into balls and place in the fridge for 24 to 72 hours.</li>
+            <li onclick="toggleCheck(this)"><span class="step-action">Mix</span> Water (cold), Yeast, and Sweetener together. Let rest for 5 minutes.</li>
+            <li onclick="toggleCheck(this)"><span class="step-action">Add</span> Flour and Olive Oil. Knead slowly until united.</li>
+            <li onclick="toggleCheck(this)"><span class="step-action">Add</span> Salt slowly while kneading.</li>
+            <li onclick="toggleCheck(this)"><span class="step-action">Knead</span> until smooth and dough separates from the bowl sides (be careful not to overheat).</li>
+            <li onclick="toggleCheck(this)"><span class="step-action">Fold</span> the dough 4 times every 15 minutes to build strength.</li>
+            <li onclick="toggleCheck(this)"><span class="step-action">Bulk Proof</span> for 1 hour as one big ball (room temp).</li>
+            <li onclick="toggleCheck(this)"><span class="step-action">Cold Ferment</span> Divide into balls and place in the fridge for 24 to 72 hours.</li>
         </ul>
     </div>
 
 </div>
 
+<div id="toast" class="toast">Recipe copied!</div>
+
 <script>
+    // --- 1. TABS LOGIC ---
     function openTab(tabName, btnElement) {
         var contents = document.getElementsByClassName("tab-content");
-        for (var i = 0; i < contents.length; i++) {
-            contents[i].style.display = "none";
-        }
+        for (var i = 0; i < contents.length; i++) { contents[i].style.display = "none"; }
         var buttons = document.getElementsByClassName("tab-btn");
-        for (var i = 0; i < buttons.length; i++) {
-            buttons[i].classList.remove("active");
-        }
+        for (var i = 0; i < buttons.length; i++) { buttons[i].classList.remove("active"); }
         document.getElementById(tabName).style.display = "block";
         if(btnElement) btnElement.classList.add("active");
+    }
+
+    // --- 2. CALCULATOR LOGIC ---
+    function calculateAndSave() {
+        calculateRecipe();
+        savePreferences();
     }
 
     function calculateRecipe() {
@@ -220,11 +348,8 @@
         let weightPerBall = parseFloat(document.getElementById('ballWeight').value);
         let sweetenerType = document.getElementById('sweetenerType').value;
 
-        let hydrationPct = 65.0; 
-        let saltPct = 2.5; 
-        let yeastPct = 0.15;
-        let oilPct = 1.0;
-        
+        // Ratios
+        let hydrationPct = 65.0; let saltPct = 2.5; let yeastPct = 0.15; let oilPct = 1.0;
         let sweetenerPct = 0;
         if (sweetenerType === 'sugar') sweetenerPct = 1.0;
         if (sweetenerType === 'honey') sweetenerPct = 1.5;
@@ -232,6 +357,7 @@
         let totalPercentage = 100 + hydrationPct + saltPct + yeastPct + oilPct + sweetenerPct;
         let totalDoughWeight = balls * weightPerBall;
 
+        // Math
         let flour = (totalDoughWeight / totalPercentage) * 100;
         let water = flour * (hydrationPct / 100);
         let salt = flour * (saltPct / 100);
@@ -239,7 +365,7 @@
         let oil = flour * (oilPct / 100);
         let sweetener = flour * (sweetenerPct / 100);
 
-        // Update Screen
+        // Update UI
         document.getElementById('flourResult').innerText = Math.round(flour) + " g";
         document.getElementById('waterResult').innerText = Math.round(water) + " g";
         document.getElementById('saltResult').innerText = salt.toFixed(1) + " g";
@@ -259,8 +385,92 @@
         }
     }
 
-    // Run on load
-    calculateRecipe();
+    // --- 3. CHECKBOX INTERACTION ---
+    function toggleCheck(element) {
+        element.classList.toggle('checked');
+    }
+
+    // --- 4. SAVE/LOAD PREFERENCES ---
+    function savePreferences() {
+        localStorage.setItem('balls', document.getElementById('balls').value);
+        localStorage.setItem('ballWeight', document.getElementById('ballWeight').value);
+        localStorage.setItem('sweetenerType', document.getElementById('sweetenerType').value);
+    }
+
+    function loadPreferences() {
+        if(localStorage.getItem('balls')) {
+            document.getElementById('balls').value = localStorage.getItem('balls');
+        }
+        if(localStorage.getItem('ballWeight')) {
+            document.getElementById('ballWeight').value = localStorage.getItem('ballWeight');
+        }
+        if(localStorage.getItem('sweetenerType')) {
+            document.getElementById('sweetenerType').value = localStorage.getItem('sweetenerType');
+        }
+        calculateRecipe();
+    }
+
+    // --- 5. WAKE LOCK (KEEP SCREEN ON) ---
+    let wakeLock = null;
+    async function toggleWakeLock() {
+        const toggle = document.getElementById('wakeLockToggle');
+        if (toggle.checked) {
+            try {
+                wakeLock = await navigator.wakeLock.request('screen');
+                console.log('Screen Wake Lock active');
+                // If lock is lost (e.g. user minimized), uncheck the box
+                wakeLock.addEventListener('release', () => {
+                    console.log('Screen Wake Lock released');
+                    toggle.checked = false; 
+                });
+            } catch (err) {
+                console.error(`${err.name}, ${err.message}`);
+                toggle.checked = false;
+                alert("Screen Lock not supported on this browser.");
+            }
+        } else {
+            if (wakeLock !== null) {
+                await wakeLock.release();
+                wakeLock = null;
+            }
+        }
+    }
+
+    // --- 6. COPY TO CLIPBOARD ---
+    function copyRecipe() {
+        let flour = document.getElementById('flourResult').innerText;
+        let water = document.getElementById('waterResult').innerText;
+        let salt = document.getElementById('saltResult').innerText;
+        let yeast = document.getElementById('yeastResult').innerText;
+        let oil = document.getElementById('oilResult').innerText;
+        let balls = document.getElementById('balls').value;
+        let weight = document.getElementById('ballWeight').value;
+        let sweetenerType = document.getElementById('sweetenerType').value;
+        let sweetenerVal = document.getElementById('sweetenerResult').innerText;
+
+        let text = `🍕 Pizza Dough Recipe (${balls} x ${weight}g)\n\n`;
+        text += `- Flour: ${flour}\n`;
+        text += `- Water: ${water}\n`;
+        text += `- Salt: ${salt}\n`;
+        text += `- Yeast: ${yeast}\n`;
+        text += `- Olive Oil: ${oil}\n`;
+        if(sweetenerType !== 'none') {
+            text += `- ${sweetenerType === 'sugar' ? 'Sugar' : 'Honey'}: ${sweetenerVal}\n`;
+        }
+        
+        text += `\nMethod: https://${window.location.hostname}${window.location.pathname}`;
+
+        navigator.clipboard.writeText(text).then(function() {
+            var x = document.getElementById("toast");
+            x.className = "toast show";
+            setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+        }, function(err) {
+            alert('Could not copy text: ', err);
+        });
+    }
+
+    // Initialize on Load
+    window.onload = loadPreferences;
 </script>
 
 </body>
