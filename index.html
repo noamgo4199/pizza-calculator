@@ -31,7 +31,7 @@
         /* HEADER */
         .header {
             text-align: center;
-            padding: 15px 20px 10px 20px; /* Adjusted padding */
+            padding: 15px 20px 10px 20px;
         }
         h2 { 
             color: #CD212A; 
@@ -47,13 +47,12 @@
             margin-top: 8px;
         }
 
-        /* WAKE LOCK TOGGLE (Fixed Position) */
+        /* WAKE LOCK TOGGLE */
         .wake-lock-container {
-            /* Changed from absolute to centered flex */
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 15px; /* Space between toggle and title */
+            margin-bottom: 15px;
             font-size: 12px;
             font-family: sans-serif;
             color: #666;
@@ -96,7 +95,7 @@
         }
         .tab-btn {
             flex: 1;
-            padding: 15px;
+            padding: 15px 5px; /* Reduced side padding slightly to fit 3 tabs */
             border: none;
             background: none;
             cursor: pointer;
@@ -263,6 +262,7 @@
     <div class="tabs">
         <button class="tab-btn active" onclick="openTab('calculatorTab', this)">Ingredients</button>
         <button class="tab-btn" onclick="openTab('methodTab', this)">Method</button>
+        <button class="tab-btn" onclick="openTab('bakingTab', this)">Baking</button>
     </div>
 
     <div id="calculatorTab" class="tab-content" style="display: block;">
@@ -315,6 +315,17 @@
             <li onclick="toggleCheck(this)"><span class="step-action">Fold</span> the dough 4 times every 15 minutes to build strength.</li>
             <li onclick="toggleCheck(this)"><span class="step-action">Bulk Proof</span> for 1 hour as one big ball (room temp).</li>
             <li onclick="toggleCheck(this)"><span class="step-action">Cold Ferment</span> Divide into balls and place in the fridge for 24 to 72 hours.</li>
+        </ul>
+    </div>
+
+    <div id="bakingTab" class="tab-content">
+        <div class="note">Tap steps to mark done</div>
+        <ul>
+            <li onclick="toggleCheck(this)"><span class="step-action">Preheat</span> oven to <strong>220-250°C</strong> (Max heat).</li>
+            <li onclick="toggleCheck(this)"><span class="step-action">Prepare Tray</span> Place an empty oven tray <strong>upside down</strong> inside the oven to get hot.</li>
+            <li onclick="toggleCheck(this)"><span class="step-action">Open</span> the dough ball using <strong>Semolina flour</strong> (makes it crispy & prevents sticking).</li>
+            <li onclick="toggleCheck(this)"><span class="step-action">Transfer</span> the pizza carefully onto the hot upside-down tray in the oven.</li>
+            <li onclick="toggleCheck(this)"><span class="step-action">Bake</span> until the crust begins to darken/char, but ensure cheese doesn't burn.</li>
         </ul>
     </div>
 
@@ -413,18 +424,12 @@
         if (toggle.checked) {
             try {
                 wakeLock = await navigator.wakeLock.request('screen');
-                // Lock acquired
-                wakeLock.addEventListener('release', () => {
-                    // Lock released by system (e.g. switching apps)
-                    toggle.checked = false; 
-                });
+                wakeLock.addEventListener('release', () => { toggle.checked = false; });
             } catch (err) {
-                // Wake lock not supported or allowed
                 toggle.checked = false;
                 alert("Screen Lock not supported by your browser/device.");
             }
         } else {
-            // User manually turned it off
             if (wakeLock !== null) {
                 await wakeLock.release();
                 wakeLock = null;
@@ -453,7 +458,6 @@
         if(sweetenerType !== 'none') {
             text += `- ${sweetenerType === 'sugar' ? 'Sugar' : 'Honey'}: ${sweetenerVal}\n`;
         }
-        // Adds a link back to your calculator in the copied text
         text += `\nMethod: https://${window.location.hostname}${window.location.pathname}`;
 
         navigator.clipboard.writeText(text).then(function() {
@@ -461,7 +465,7 @@
             x.className = "toast show";
             setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
         }, function(err) {
-            alert('Could not copy text. Do it manually!');
+            alert('Could not copy text.');
         });
     }
 
